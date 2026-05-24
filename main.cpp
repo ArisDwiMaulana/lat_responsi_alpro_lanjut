@@ -104,38 +104,120 @@ void load_data(Mahasiswa mhs[], int &banyak_data){
     file.close();
 }
 
+// MEnukar data dalam struct
+void swap_data_struct(Mahasiswa mhs[], int i, int j){
+    Mahasiswa temp = mhs[i];
+    mhs[i] = mhs[j];
+    mhs[j] = temp;
+}
+
+// Bubble Sort Berdasarkan NIM
+void sort_data(Mahasiswa mhs[], int banyak_data){
+    int temp;
+    for(int i = 0; i < banyak_data - 1; i++){
+        for(int j = 0; j < banyak_data - i - 1; j++){
+            if(mhs[j].NIM > mhs[j + 1].NIM){
+                swap_data_struct(mhs, j, j + 1);
+            }
+        }
+    }
+}
+
 string status(int semester, double ipk){
-    return semester >= 5 && ipk >= 3.25 ? "Lolos" : "Tidak Lolos";
+    if(semester >= 5 && ipk >= 3.25){
+        return "Lolos";
+
+    }else{
+        return "Tidak Lolos";
+    }
+}
+
+void header_tabel(){
+    cout<<left 
+    <<setw(12)<<"NIM" 
+    <<setw(20)<<"Nama" 
+    <<setw(15)<<"Gender" 
+    <<setw(18)<<"Tanggal Lahir" 
+    <<setw(10)<<"Semester" 
+    <<setw(20)<<"Prodi" 
+    <<setw(20)<<"Fakultas" 
+    <<setw(6)<<"IPK"
+    <<setw(8)<<"Status"<<endl;
+}
+
+void tabel_data(Mahasiswa mhs[], int i){
+    cout<<left 
+    <<setw(12)<<mhs[i].NIM 
+    <<setw(20)<<mhs[i].Nama 
+    <<setw(15)<<mhs[i].JenisKelamin 
+    <<setw(18)<<mhs[i].TanggalLahir
+    <<setw(10)<<mhs[i].Semester 
+    <<setw(20)<<mhs[i].Prodi 
+    <<setw(20)<<mhs[i].Fakultas 
+    <<setw(6)<<mhs[i].IPK
+    <<setw(8)<<status(mhs[i].Semester, mhs[i].IPK)<<endl;
+}
+
+void tabel_utuh(Mahasiswa mhs[], int x, int opsi){// 1 untuk banyak data, 2 untuk index tertentu
+    if(opsi == 1){
+        header_tabel();
+        for(int i = 0; i < x; i++){
+            tabel_data(mhs, i);
+        }
+    }
+    if(opsi == 2){
+        header_tabel();
+        tabel_data(mhs, x);
+    }
+    
 }
 
 void tampilkan_seluruh_data(){
     Mahasiswa mhs[100];
     int banyak_data = 0;
     load_data(mhs, banyak_data);
-    cout<<left 
-        <<setw(12)<<"NIM" 
-        <<setw(20)<<"Nama" 
-        <<setw(15)<<"Gender" 
-        <<setw(18)<<"Tanggal Lahir" 
-        <<setw(10)<<"Semester" 
-        <<setw(20)<<"Prodi" 
-        <<setw(20)<<"Fakultas" 
-        <<setw(6)<<"IPK"
-        <<setw(8)<<"Status"<<endl;
-    for(int i = 0; i < banyak_data; i++){
-        cout<<left 
-            <<setw(12)<<mhs[i].NIM 
-            <<setw(20)<<mhs[i].Nama 
-            <<setw(15)<<mhs[i].JenisKelamin 
-            <<setw(18)<<mhs[i].TanggalLahir
-            <<setw(10)<<mhs[i].Semester 
-            <<setw(20)<<mhs[i].Prodi 
-            <<setw(20)<<mhs[i].Fakultas 
-            <<setw(6)<<mhs[i].IPK
-            <<setw(8)<<status(mhs[i].Semester, mhs[i].IPK)<<endl;
-        
+    if(banyak_data == 0){
+        cout<<"Data kosong!"<<endl;
+    }else{
+        sort_data(mhs, banyak_data);
+        tabel_utuh(mhs, banyak_data, 1);
     }
-    
+}
+
+int binary_search(Mahasiswa mhs[], int banyak_data, int input_nim){
+    int left = 0;
+    int right = banyak_data - 1;
+    while(left <= right){
+        int mid = left + (right - left) / 2;
+        if(mhs[mid].NIM == input_nim){
+            return mid;
+        }
+        else if(mhs[mid].NIM < input_nim){
+            left = mid + 1;
+        }
+        else{
+            right = mid - 1;
+        }
+    }
+    return -1; // NIM tidak ditemukan
+}
+
+// cari data berdasarkan NIM
+void cari_data(){
+    Mahasiswa mhs[100];
+    int banyak_data = 0;
+    int input_nim;
+    load_data(mhs, banyak_data);
+    sort_data(mhs, banyak_data);
+
+    cout<<"Masukkan NIM yang ingin dicari: ";
+    cin>>input_nim;
+    int index = binary_search(mhs, banyak_data, input_nim);
+    if(index != -1){
+        tabel_utuh(mhs, index, 2);
+    }else{
+        cout<<"Data dengan NIM "<<input_nim<<" tidak ditemukan!"<<endl;
+    }
 }
 
 void subMenuOutput(){
@@ -157,6 +239,7 @@ void subMenuOutput(){
             case 2:
                 system("cls");
                 cout<<"Cari data berdasarkan NIM"<<endl;
+                cari_data();
                 system("pause");
                 break;
             case 3:
